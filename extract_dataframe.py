@@ -32,54 +32,57 @@ class TweetDfExtractor:
     def __init__(self, tweets_list):
         
         self.tweets_list = tweets_list
-        
-        return self.tweets_list
 
     # an example function
     def find_statuses_count(self)->list:
         
-        statuses_count = tweets_list['user']['statuses_count']
+        statuses_count = [self.tweets_list[11][i]['statuses_count'] for i in range(len(self.tweets_list))]
         
         return statuses_count
     
     def find_full_text(self)->list:
         
-        text = tweets_list['text']
+        text = self.tweets_list[3]
         
         return text
     
     
     def find_sentiments(self, text)->list:
         
-        return self.TextBlob(text).sentiment.polarity, self.TextBlob(text).sentiment.subjectivity.subjectivity
+        polarity = TextBlob(str([cell.encode('utf-8') for cell in text])).sentiment.polarity
+        
+        self.subjectivity = TextBlob(str([cell.encode('utf-8') for cell in text])).sentiment.subjectivity
+        
+        return polarity, self.subjectivity
 
     def find_created_time(self)->list:
+        print(self.tweets_list)
         
-        created_at = tweets_list['user']['created_at']
+        created_at = [self.tweets_list[11][1]['created_at'] for i in range(len(self.tweets_list))]
         
         return created_at
 
     def find_source(self)->list:
         
-        source = tweets_list['source']
+        source = self.tweets_list[4]
 
         return source
 
     def find_screen_name(self)->list:
         
-        screen_name = tweets_list['user']['screen_name']
+        screen_name = [self.tweets_list[11][i]['screen_name'] for i in range(len(self.tweets_list))]
         
         return screen_name
 
     def find_followers_count(self)->list:
         
-        followers_count = tweets_list['user']['followers_count']
+        followers_count = [self.tweets_list[11][i]['followers_count'] for i in range(len(self.tweets_list))]
         
         return followers_count
 
     def find_friends_count(self)->list:
         
-        friends_count = tweets_list['user']['friends_count']
+        friends_count = [self.tweets_list[11][i]['friends_count'] for i in range(len(self.tweets_list))]
         
         return friends_count
 
@@ -93,35 +96,41 @@ class TweetDfExtractor:
 
     def find_favourite_count(self)->list:
         
-        fav_count = tweets_list['user']['favourites_count']
+        fav_count = [self.tweets_list[11][i]['favourites_count'] for i in range(len(self.tweets_list))]
         
         return fav_count
         
     def find_retweet_count(self)->list:
         
-        retweet_count = tweets_list['retweet_count']
+        retweet_count = self.tweets_list[20]
         
         return retweet_count
 
     def find_hashtags(self)->list:
         
-        hashtags = tweets_list['entities']['hashtags']
+        hashtags = [self.tweets_list[22][i]['hashtags'] for i in range(len(self.tweets_list))]
         
         return hashtags
 
     def find_mentions(self)->list:
         
-        mentions = tweets_list['entities']['user_mentions']
+        mentions = [self.tweets_list[22][i]['user_mentions'] for i in range(len(self.tweets_list))]
         
         return mentions
 
     def find_location(self)->list:
         try:
-            location = self.tweets_list['user']['location']
+            location = self.tweets_list[11]['location']
         except TypeError:
             location = None
         
         return location
+    
+    def find_lang(self):
+        
+        lang = self.tweets_list[26]
+        
+        return lang
 
     
         
@@ -154,6 +163,7 @@ class TweetDfExtractor:
             print('File Successfully Saved.!!!')
         
         return df
+
 
 
                 

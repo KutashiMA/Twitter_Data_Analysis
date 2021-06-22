@@ -32,36 +32,56 @@ class TweetDfExtractor:
     def __init__(self, tweets_list):
         
         self.tweets_list = tweets_list
+        
+        return self.tweets_list
 
     # an example function
     def find_statuses_count(self)->list:
-        statuses_count 
         
+        statuses_count = tweets_list['user']['statuses_count']
+        
+        return statuses_count
+    
     def find_full_text(self)->list:
-        text = 
-       
+        
+        text = tweets_list['text']
+        
+        return text
+    
     
     def find_sentiments(self, text)->list:
         
-        return polarity, self.subjectivity
+        return self.TextBlob(text).sentiment.polarity, self.TextBlob(text).sentiment.subjectivity.subjectivity
 
     def find_created_time(self)->list:
-       
+        
+        created_at = tweets_list['user']['created_at']
+        
         return created_at
 
     def find_source(self)->list:
-        source = 
+        
+        source = tweets_list['source']
 
         return source
 
     def find_screen_name(self)->list:
-        screen_name = 
+        
+        screen_name = tweets_list['user']['screen_name']
+        
+        return screen_name
 
     def find_followers_count(self)->list:
-        followers_count = 
+        
+        followers_count = tweets_list['user']['followers_count']
+        
+        return followers_count
 
     def find_friends_count(self)->list:
-        friends_count = 
+        
+        friends_count = tweets_list['user']['friends_count']
+        
+        return friends_count
 
     def is_sensitive(self)->list:
         try:
@@ -73,22 +93,33 @@ class TweetDfExtractor:
 
     def find_favourite_count(self)->list:
         
-    
+        fav_count = tweets_list['user']['favourites_count']
+        
+        return fav_count
+        
     def find_retweet_count(self)->list:
-        retweet_count = 
+        
+        retweet_count = tweets_list['retweet_count']
+        
+        return retweet_count
 
     def find_hashtags(self)->list:
-        hashtags =
+        
+        hashtags = tweets_list['entities']['hashtags']
+        
+        return hashtags
 
     def find_mentions(self)->list:
-        mentions = 
-
+        
+        mentions = tweets_list['entities']['user_mentions']
+        
+        return mentions
 
     def find_location(self)->list:
         try:
             location = self.tweets_list['user']['location']
         except TypeError:
-            location = ''
+            location = None
         
         return location
 
@@ -123,6 +154,7 @@ class TweetDfExtractor:
             print('File Successfully Saved.!!!')
         
         return df
+
 
                 
 if __name__ == "__main__":

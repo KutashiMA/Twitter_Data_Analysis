@@ -21,6 +21,25 @@ def read_json(json_file: str)->list:
     
     return len(tweets_data), tweets_data
 
+def my_zip(value):
+    """
+    This function returns a list of lists, its an iterator of lists where the first item in each passed iterator is paired together, and
+    then the second item in each passed iterator are paired together etc.
+    
+    This is basically a zip() function but a list instead of an object, which contains lists insted of tuples
+    """
+    has = {}
+    for i in value:
+        count = 0
+        for j in i:
+            if count not in has:
+                has[count] = []
+                has[count].append(j)
+            else:
+                has[count].append(j)
+            count +=1
+    return has.values()
+
 class TweetDfExtractor:
     """
     this function will parse tweets json into a pandas dataframe
@@ -53,9 +72,9 @@ class TweetDfExtractor:
         
         polarity = [TextBlob(i).sentiment.polarity for i in text]
         
-        self.subjectivity = [TextBlob(i).sentiment.subjectivity for i in text]
+        subjectivity = [TextBlob(i).sentiment.subjectivity for i in text]
         
-        return polarity, self.subjectivity
+        return polarity, subjectivity
 
     def find_created_time(self)->list:
         
@@ -95,7 +114,7 @@ class TweetDfExtractor:
                 if i is None:
                     lst.append(float("NaN"))
                 else:
-                    lst.appendend(i)
+                    lst.append(i)
         except KeyError:
             is_sensitive = None
             
@@ -126,11 +145,17 @@ class TweetDfExtractor:
         mentions = [self.tweets_list[i]['entities']['user_mentions'] for i in range(len(self.tweets_list))]
         
         return mentions
+    
+    def find_place_coord_bound(self)->list:
+        
+        place_coord = [self.tweets_list[i]['user']['location'] for i in range(len(self.tweets_list))]
+        
+        return place_coord
 
     def find_location(self)->list:
+        lst = []
         try:
-            location = [self.tweets_list[i]['user']['location'] for i in range(len(self.tweets_list))]
-            
+            location = [self.tweets_list[i]['place'] for i in range(len(self.tweets_list))] 
         except TypeError:
             location = None
         
@@ -165,12 +190,14 @@ class TweetDfExtractor:
         hashtags = self.find_hashtags()
         mentions = self.find_mentions()
         location = self.find_location()
+        place_coord = self.find_place_coord_bound()
         
-        data = zip(created_at, source, text, polarity, subjectivity, lang, fav_count, retweet_count, screen_name, follower_count, friends_count, sensitivity, hashtags, mentions, location)
+        data = my_zip([created_at, source, text, polarity, subjectivity, lang, fav_count, retweet_count, screen_name, follower_count, friends_count,\
+                       sensitivity, hashtags, mentions, location, place_coord])
         df = pd.DataFrame(data=data, columns=columns)
 
         if save:
-            df.to_csv('processed_tweet_data.csv', index=False)
+            df.to_csv('processed_tweet_data.csv', index=True)
             print('File Successfully Saved.!!!')
         
         return df

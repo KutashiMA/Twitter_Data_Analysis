@@ -61,9 +61,48 @@ class TweetDfExtractor:
     
     def find_full_text(self)->list:
         
-        text = [self.tweets_list[i]['text'] for i in range(len(self.tweets_list))]
-        
-        
+        lst_one = []
+        lst_two = []
+        lst_three = []
+        text =[]
+        count = 0
+
+        for i in self.tweets_list:
+            tester = 'retweeted_status' in i.keys()
+            if tester==True:
+                lst_one.append(count)
+            else: pass
+            count+=1
+
+        count = 0
+
+        for i in self.tweets_list:
+            if  count in lst_one:
+                hold = 'extended_tweet' in i['retweeted_status'].keys()
+                if hold == True:
+                    lst_two.append(count)
+            else: pass
+            count+=1
+
+        count = 0  
+
+        for i in self.tweets_list:
+            if count in lst_two:
+                hold = 'full_text' in i['retweeted_status']['extended_tweet'].keys()
+                if hold == True:
+                    lst_three.append(count)
+            else: pass
+            count +=1
+
+        count = 0
+
+        for i in self.tweets_list:
+            if count in lst_three:
+                text.append(i['retweeted_status']['extended_tweet']['full_text'])
+            else:
+                text.append(None)
+
+            count+=1
         
         return text
     
@@ -78,7 +117,7 @@ class TweetDfExtractor:
 
     def find_created_time(self)->list:
         
-        created_at = [self.tweets_list[i]['user']['created_at'] for i in range(len(self.tweets_list))]
+        created_at = [self.tweets_list[i]['created_at'] for i in range(len(self.tweets_list))]
         
         return created_at
 
@@ -107,30 +146,37 @@ class TweetDfExtractor:
         return friends_count
 
     def is_sensitive(self)->list:
-        lst = []
-        try:
-            is_sensitive = [self.tweets_list[i]['possibly_sensitive'] for i in range(len(self.tweets_list))]
-            for i in is_sensitive:
-                if i is None:
-                    lst.append(float("NaN"))
-                else:
-                    lst.append(i)
-        except KeyError:
-            is_sensitive = None
-            
         
-
-        return lst
+        sensitivity = []
+        for i in self.tweets_list:
+            if 'possibly_sensitive' in i.keys():
+                sensitivity.append(i['possibly_sensitive'])
+            else:
+                sensitivity.append(None)
+            
+        return sensitivity
 
     def find_favourite_count(self)->list:
         
-        fav_count = [self.tweets_list[i]['user']['favourites_count'] for i in range(len(self.tweets_list))]
+        fav_count = []
         
+        for i in self.tweets_list:
+            if 'retweeted_status' in i.keys():
+                fav_count.append(i['retweeted_status']['favorite_count'])
+            else:
+                fav_count.append(None)
+                
         return fav_count
         
     def find_retweet_count(self)->list:
         
-        retweet_count = [self.tweets_list[i]['retweet_count'] for i in range(len(self.tweets_list))]
+        retweet_count = []
+        
+        for i in self.tweets_list:
+            if 'retweeted_status' in i.keys():
+                retweet_count.append(i['retweeted_status']['retweet_count'])
+            else:
+                retweet_count.append(None)
         
         return retweet_count
 
@@ -146,20 +192,26 @@ class TweetDfExtractor:
         
         return mentions
     
-    def find_place_coord_bound(self)->list:
-        
-        place_coord = [self.tweets_list[i]['user']['location'] for i in range(len(self.tweets_list))]
-        
-        return place_coord
-
     def find_location(self)->list:
-        lst = []
-        try:
-            location = [self.tweets_list[i]['place'] for i in range(len(self.tweets_list))] 
-        except TypeError:
-            location = None
+        
+        location = [self.tweets_list[i]['user']['location'] for i in range(len(self.tweets_list))]
         
         return location
+
+    def find_place_coord_bound(self)->list:
+        lst = []
+        try:
+            place_coord = [self.tweets_list[i]['place'] for i in range(len(self.tweets_list))]
+            for i in place_coord:
+                if i is None:
+                    lst.append(float("NaN"))
+                else:
+                    lst.append(i)
+            
+        except TypeError:
+            place_coord = None
+        
+        return place_coord
     
     def find_lang(self):
         
@@ -197,10 +249,12 @@ class TweetDfExtractor:
         df = pd.DataFrame(data=data, columns=columns)
 
         if save:
-            df.to_csv('processed_tweet_data.csv', index=True)
+            df.to_csv('processed_tweet_data.csv', index=False)
             print('File Successfully Saved.!!!')
         
         return df
+
+
 
 
 
@@ -210,7 +264,7 @@ if __name__ == "__main__":
     # required column to be generated you should be creative and add more features
     columns = ['created_at', 'source', 'original_text','clean_text', 'sentiment','polarity','subjectivity', 'lang', 'favorite_count', 'retweet_count', 
     'original_author', 'screen_count', 'followers_count','friends_count','possibly_sensitive', 'hashtags', 'user_mentions', 'place', 'place_coord_boundaries']
-    _, tweet_list = read_json("data/covid19.json")
+    _, tweet_list = read_json("../data/covid19.json")
     tweet = TweetDfExtractor(tweet_list)
     tweet_df = tweet.get_tweet_df(save=True) 
 

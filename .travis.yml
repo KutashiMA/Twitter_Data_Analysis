@@ -1,6 +1,7 @@
 # Config file for automatic testing at travis-ci.com
 language: python
 
+# Python versions to test on
 python:
   - '3.9'
   - '3.8'

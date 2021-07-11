@@ -4,7 +4,7 @@ import streamlit as st
 import altair as alt
 from wordcloud import WordCloud
 import plotly.express as px
-from add_data import db_execute_fetch
+from fill_database import db_execute_fetch
 
 st.set_page_config(page_title="Day 5", layout="wide")
 
@@ -48,7 +48,7 @@ def barChart(data, title, X, Y):
 def wordCloud():
     df = loadData()
     cleanText = ''
-    for text in df['extra_clean_text']:
+    for text in df['clean_text']:
         tokens = str(text).lower().split()
 
         cleanText += " ".join(tokens) + " "
@@ -59,7 +59,7 @@ def wordCloud():
 
 def stBarChart():
     df = loadData()
-    dfCount = pd.DataFrame({'Tweet_count': df.groupby(['original_author'])['extra_clean_text'].count()}).reset_index()
+    dfCount = pd.DataFrame({'Tweet_count': df.groupby(['original_author'])['clean_text'].count()}).reset_index()
     dfCount["original_author"] = dfCount["original_author"].astype(str)
     dfCount = dfCount.sort_values("Tweet_count", ascending=False)
 
@@ -70,7 +70,7 @@ def stBarChart():
 
 def langPie():
     df = loadData()
-    dfLangCount = pd.DataFrame({'Tweet_count': df.groupby(['language'])['extra_clean_text'].count()}).reset_index()
+    dfLangCount = pd.DataFrame({'Tweet_count': df.groupby(['language'])['clean_text'].count()}).reset_index()
     dfLangCount["language"] = dfLangCount["language"].astype(str)
     dfLangCount = dfLangCount.sort_values("Tweet_count", ascending=False)
     dfLangCount.loc[dfLangCount['Tweet_count'] < 10, 'lang'] = 'Other languages'
